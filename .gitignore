@@ -19,7 +19,7 @@
 
 # RStudio files
 .Rproj.user/
-.Rproj
+*.Rproj
 
 # produced vignettes
 vignettes/*.html
@@ -40,4 +40,4 @@ vignettes/*.pdf
 .Renviron
 
 # Test code
-/test/*
+test/
