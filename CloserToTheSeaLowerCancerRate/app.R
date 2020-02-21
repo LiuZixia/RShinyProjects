@@ -45,7 +45,7 @@ ui <- fluidPage(
                   value = 16),
       checkboxGroupInput("region",
                          "Region for analysis (Unselect Global if others are selected)",
-                         c("Global", "China", "Europe", "USA"), selected=c("Global","China", "Europe", "USA"),
+                         c("Global", "Europe", "Asia", "North America"), selected=c("Global"),
                          inline = T)
     ),
     
@@ -81,25 +81,17 @@ server <- function(input, output) {
                                                          "discription", "distance")]
     data_with_region_group <- data.frame(matrix(ncol = 6, nrow = 0))
     colnames(data_with_region_group) <- c("incidence_rate_100000",
-                                          "discription", "distance",
+                                          "registry_code", "distance",
                                           "type", "region", "p_value")
     for(i in input$region){
       if(i == "Global"){
         DOI <- data_with_distance
       }else if(i == "Europe"){
-        DOI <- data_with_distance[data_with_distance$discription %like% "Ukraine|
-                              France|Spain|Sweden|Norway|Germany|Finland|
-                              Poland|Italy|UK|Romania|Belarus|
-                              Kazakhstan|Greece|Bulgaria|Iceland|Hungary|
-                              Portugal|Austria|Czech Republic|Serbia|Ireland|
-                              Lithuania|Latvia|Croatia|Bosnia and Herzegovina|
-                              Slovakia|Estonia|Denmark|Switzerland|Netherlands|
-                              Moldova|Belgium|Armenia|Albania|North Macedonia|
-                              Turkey|Slovenia|Montenegro|Kosovo|Cyprus|
-                              Azerbaijan|Luxembourg|Georgia|Andorra|Malta|
-                              Liechtenstein|San Marino|Monaco|Vatican City",]
-      }else{
-        DOI <- data_with_distance[data_with_distance$discription %like% i,]
+        DOI <- data_with_distance[data_with_distance$registry_code %in% grep("^5",data_with_coordinate$registry_code,value=T),]
+      }else if(i == "Asia"){
+        DOI <- data_with_distance[data_with_distance$registry_code %in% grep("^4",data_with_coordinate$registry_code,value=T),]
+      }else if(i == "North America"){
+        DOI <- data_with_distance[data_with_distance$registry_code %in% grep("^3",data_with_coordinate$registry_code,value=T),]
       }
       
       DOI_coast <- DOI[which(DOI$distance < input$coast*1000),]
@@ -137,7 +129,7 @@ server <- function(input, output) {
     ggplot(data_lm(), aes(x = distance/1000, y = incidence_rate_100000))+
       geom_smooth(method='lm', formula= y~x)+
       facet_grid(cols = vars(region))+
-      labs(y= "Incidence Rate (100,000)", x = "DIstance (km)")+
+      labs(y= "Incidence Rate (100,000)", x = "Distance (km)")+
       stat_poly_eq(formula = y~x, 
                    aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
                    parse = TRUE, size = 3)
