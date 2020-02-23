@@ -2,76 +2,74 @@ library(shiny)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-    library(data.table)
-    library(BSDA)
-    library(ggpmisc)
+    library(ggpubr)
     
-    DOI_map <- reactive({
-        data("World")
-        if (input$dataset == "Global") {
-            DOI_map <-
-                as(st_transform(World, "+proj=longlat +datum=WGS84"),
-                   "Spatial")
-        } else if (input$dataset == "Europe") {
-            DOI_map <-
-                as(st_transform(World[which(World$continent == "Europe" &
-                                                World$name != "Russia"), ], "+proj=longlat +datum=WGS84"),
-                   "Spatial")
-        } else if (input$dataset == "NorthAmerica") {
-            DOI_map <-
-                as(st_transform(World[which(World$continent == "North America"), ], "+proj=longlat +datum=WGS84"),
-                   "Spatial")
-        } else if (input$dataset == "Asia") {
-            DOI_map <-
-                as(st_transform(World[which(World$continent == "Asia"), ], "+proj=longlat +datum=WGS84"),
-                   "Spatial")
-        }
-    })
-    
-    incidence_data_sf <- reactive({
-        #Read incidence rate data
-        incidence_data <- read.csv(
+    DOI_compare <- reactive({
+        incidence_data_1 <- read.csv(
             file = paste0(
                 "../data/CI5-XId/processed/subset/",
-                input$sex,
+                sex,
                 "/",
-                input$dataset,
-                "_age_group_",
-                input$age_group,
-                ".csv"
+                dataset,
+                "_age_group_0-19.csv"
             ),
             header = T
-        )[, c("latitude",
-              "longitude",
-              "incidence_rate_100000",
-              "distance")]
-        incidence_data$log_distance <-
-            log(incidence_data$distance[])
-        incidence_data_sf <-
-            st_as_sf(
-                incidence_data,
-                coords = c("longitude", "latitude"),
-                crs = "+proj=longlat +datum=WGS84"
-            )
+        )
+        incidence_data_1$age <- rep("<20", nrow(incidence_data_1))
+        incidence_data_2 <- read.csv(
+            file = paste0(
+                "../data/CI5-XId/processed/subset/",
+                sex,
+                "/",
+                dataset,
+                "_age_group_20-44.csv"
+            ),
+            header = T
+        )
+        incidence_data_2$age <- rep("20-44", nrow(incidence_data_2))
+        incidence_data_3 <- read.csv(
+            file = paste0(
+                "../data/CI5-XId/processed/subset/",
+                sex,
+                "/",
+                dataset,
+                "_age_group_45-84.csv"
+            ),
+            header = T
+        )
+        incidence_data_3$age <- rep("45-84", nrow(incidence_data_3))
+        incidence_data_4 <- read.csv(
+            file = paste0(
+                "../data/CI5-XId/processed/subset/",
+                sex,
+                "/",
+                dataset,
+                "_age_group_85-104.csv"
+            ),
+            header = T
+        )
+        incidence_data_4$age <- rep(">84", nrow(incidence_data_4))
+        DOI <-
+            rbind(incidence_data_1,
+                  incidence_data_2,
+                  incidence_data_3,
+                  incidence_data_4)
+        DOI_coast <- DOI[which(DOI$distance < coast), ]
+        DOI_coast["type"] <- rep("coast", length(DOI_coast[, 1]))
+        DOI_inland <- DOI[which(DOI$distance >= inland), ]
+        DOI_inland["type"] <- rep("inland", length(DOI_inland[, 1]))
+        DOI_compare <- rbind(DOI_coast, DOI_inland)
+        DOI_compare$age <-
+            factor(DOI_compare$age,
+                   levels = c('<20', '20-44', '45-84', '>84'))
     })
     
-    output$DotMap <- renderPlot({
-        tm_shape(DOI_map()) + tm_polygons() +
-            tm_shape(incidence_data_sf()) +
-            tm_dots(
-                col = "incidence_rate_100000",
-                midpoint = TRUE,
-                n = 10,
-                title = paste0(
-                    "Lung Cancer \nIncidence Rate\n",
-                    input$dataset,
-                    "\nAge ",
-                    input$age_group,
-                    " ",
-                    input$sex
-                ),
-                size = 0.3
-            ) +
-            tm_legend(legend.outside = TRUE)
+    output$BoxPlot <- renderPlot({
+        ggplot(data = DOI_compare, aes(x = type, y = incidence_rate_100000)) +
+            geom_boxplot() +
+            facet_wrap(age ~ ., scales = "free", ncol = 4) +
+            stat_compare_means(method = "t.test") +
+            labs(y = "Incidence Rate (100,000)",
+                 x = paste0("Group\nRegion: ", dataset, " Gender: ", sex))
     })
 })
