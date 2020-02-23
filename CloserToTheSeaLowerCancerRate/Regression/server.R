@@ -2,9 +2,9 @@ library(shiny)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-    library(ggpubr)
+    library(ggpmisc)
     
-  output$BoxPlot <- renderPlot({
+  output$Regression <- renderPlot({
         incidence_data_1 <- read.csv(
             file = paste0(
                 "../data/CI5-XId/processed/subset/",
@@ -54,20 +54,20 @@ shinyServer(function(input, output) {
                   incidence_data_2,
                   incidence_data_3,
                   incidence_data_4)
-        DOI_coast <- DOI[which(DOI$distance < input$coast*1000), ]
-        DOI_coast["type"] <- rep("coast", length(DOI_coast[, 1]))
-        DOI_inland <- DOI[which(DOI$distance >= input$inland*1000), ]
-        DOI_inland["type"] <- rep("inland", length(DOI_inland[, 1]))
-        DOI_compare <- rbind(DOI_coast, DOI_inland)
-        DOI_compare$age <-
-            factor(DOI_compare$age,
+        DOI$age <-
+            factor(DOI$age,
                    levels = c('<20', '20-44', '45-84', '>84'))
-
-        ggplot(data = DOI_compare, aes(x = type, y = incidence_rate_100000)) +
-            geom_boxplot() +
-            facet_wrap(age ~ ., scales = "free", ncol = 4) +
-            stat_compare_means(method = "t.test") +
+        DOI_coast <- DOI[which(DOI$distance < input$distance*1000), ]
+        ggplot(data = DOI_coast, aes(x = distance / 1000, y = incidence_rate_100000)) +
+          geom_smooth(method = 'lm', formula = y ~ x) +
+          facet_wrap(age ~ ., scales = "free", ncol = 4) +
+          stat_poly_eq(
+            formula = y ~ x,
+            aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")),
+            parse = TRUE,
+            size = 3
+          )+
             labs(y = "Incidence Rate (100,000)",
-                 x = paste0("Group\nRegion: ", input$dataset, " Gender: ", input$sex))
+                 x = paste0("Distance (km)\nRegion: ", input$dataset, " Gender: ", input$sex))
     })
 })
