@@ -12,24 +12,19 @@ shinyUI(fluidPage(
         sidebarPanel(
             selectInput(
                 "sex",
-                "Set the sex group for mapping",
+                "Set the sex group for analysis",
                 c("all", "male", "female"),
-                selected = "all",
+                selected = "female",
                 multiple = FALSE
             ),
-            sliderInput("coast",
+            sliderInput("distance",
                         "Definition of coastal region (distance to coastline km)",
                         min = 10,
-                        max = 200,
-                        value = 50),
-            sliderInput("inland",
-                        "Definition of inland region (distance to coastline km)",
-                        min = 10,
                         max = 300,
-                        value = 100),
+                        value = 150),
             selectInput(
                 "dataset",
-                "Set the region for mapping",
+                "Set the region for analysis",
                 c("Global", "Asia", "Europe", "NorthAmerica"),
                 selected = "NorthAmerica",
                 multiple = FALSE
@@ -38,8 +33,7 @@ shinyUI(fluidPage(
         
         # Show a plot of the generated distribution
         mainPanel(
-            plotOutput("BoxPlot"),
-            textOutput("text_output"),
+            plotOutput("Regression"),
         )
     )
 ))
