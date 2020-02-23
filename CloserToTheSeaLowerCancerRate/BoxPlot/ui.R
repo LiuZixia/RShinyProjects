@@ -31,7 +31,7 @@ shinyUI(fluidPage(
                 "dataset",
                 "Set the region for mapping",
                 c("Global", "Asia", "Europe", "NorthAmerica"),
-                selected = "NorthAmerica",
+                selected = "Global",
                 multiple = FALSE
             ),
         ),

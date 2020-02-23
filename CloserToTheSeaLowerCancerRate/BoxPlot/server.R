@@ -4,13 +4,13 @@ library(shiny)
 shinyServer(function(input, output) {
     library(ggpubr)
     
-    DOI_compare <- reactive({
+  output$BoxPlot <- renderPlot({
         incidence_data_1 <- read.csv(
             file = paste0(
                 "../data/CI5-XId/processed/subset/",
-                sex,
+                input$sex,
                 "/",
-                dataset,
+                input$dataset,
                 "_age_group_0-19.csv"
             ),
             header = T
@@ -19,9 +19,9 @@ shinyServer(function(input, output) {
         incidence_data_2 <- read.csv(
             file = paste0(
                 "../data/CI5-XId/processed/subset/",
-                sex,
+                input$sex,
                 "/",
-                dataset,
+                input$dataset,
                 "_age_group_20-44.csv"
             ),
             header = T
@@ -30,9 +30,9 @@ shinyServer(function(input, output) {
         incidence_data_3 <- read.csv(
             file = paste0(
                 "../data/CI5-XId/processed/subset/",
-                sex,
+                input$sex,
                 "/",
-                dataset,
+                input$dataset,
                 "_age_group_45-84.csv"
             ),
             header = T
@@ -41,9 +41,9 @@ shinyServer(function(input, output) {
         incidence_data_4 <- read.csv(
             file = paste0(
                 "../data/CI5-XId/processed/subset/",
-                sex,
+                input$sex,
                 "/",
-                dataset,
+                input$dataset,
                 "_age_group_85-104.csv"
             ),
             header = T
@@ -54,22 +54,20 @@ shinyServer(function(input, output) {
                   incidence_data_2,
                   incidence_data_3,
                   incidence_data_4)
-        DOI_coast <- DOI[which(DOI$distance < coast), ]
+        DOI_coast <- DOI[which(DOI$distance < input$coast*1000), ]
         DOI_coast["type"] <- rep("coast", length(DOI_coast[, 1]))
-        DOI_inland <- DOI[which(DOI$distance >= inland), ]
+        DOI_inland <- DOI[which(DOI$distance >= input$inland*1000), ]
         DOI_inland["type"] <- rep("inland", length(DOI_inland[, 1]))
         DOI_compare <- rbind(DOI_coast, DOI_inland)
         DOI_compare$age <-
             factor(DOI_compare$age,
                    levels = c('<20', '20-44', '45-84', '>84'))
-    })
-    
-    output$BoxPlot <- renderPlot({
+
         ggplot(data = DOI_compare, aes(x = type, y = incidence_rate_100000)) +
             geom_boxplot() +
             facet_wrap(age ~ ., scales = "free", ncol = 4) +
             stat_compare_means(method = "t.test") +
             labs(y = "Incidence Rate (100,000)",
-                 x = paste0("Group\nRegion: ", dataset, " Gender: ", sex))
+                 x = paste0("Group\nRegion: ", input$dataset, " Gender: ", input$sex))
     })
 })
