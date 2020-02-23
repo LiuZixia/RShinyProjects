@@ -31,7 +31,7 @@ shinyServer(function(input, output) {
         #Read incidence rate data
         incidence_data <- read.csv(
             file = paste0(
-                "./data/CI5-XId/processed/subset/",
+                "../data/CI5-XId/processed/subset/",
                 input$sex,
                 "/",
                 input$dataset,
