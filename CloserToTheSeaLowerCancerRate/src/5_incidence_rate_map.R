@@ -15,7 +15,7 @@ sex <- "male"
 #Set the age group, "0-19" "20-44" "45-84" "85-104"
 age_group <- "45-84"
 #Set the dataset, "Global" "Asia" "Europe" "NorthAmerica" "China" "US"
-dataset <- "NorthAmerica"
+dataset <- "Global"
 
 #----Prepare Maps----
 data("World")
@@ -131,7 +131,7 @@ tm_shape(r.m) +
       dataset ,
       "\nAge",
       age_group,
-      "/nCases Per 100000"
+      "\nCases Per 100000"
     )
   ) +
   tm_shape(DOI_map) + tm_borders() +
