@@ -45,12 +45,12 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  observe({
-    query <- parseQueryString(session$clientData$url_search)
-    if (!is.null(query[['ResearchID']])) {
-      updateTextInput(session, "research_id", value = query[['ResearchID']])
-    }
-  })
+#  observe({
+#    query <- parseQueryString(session$clientData$url_search)
+#    if (!is.null(query[['ResearchID']])) {
+#      updateTextInput(session, "research_id", value = query[['ResearchID']])
+#    }
+#  })
   observeEvent(input$submit, {
     source('../sql_conf.R')
     Query_Insert_Research <- paste0("INSERT INTO `research` (`id`, `abbreviation`, `full_name`, `created_at`, `modified_at`, `description`, `contact_id`) VALUES (NULL, '",input$abbreviation, "', '",input$full_name, "', current_timestamp(), '0000-00-00 00:00:00.000000', '",input$description, "', '",input$contact_id, "');")
