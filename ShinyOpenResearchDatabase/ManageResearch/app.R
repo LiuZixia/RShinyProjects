@@ -42,17 +42,25 @@ ui <- fluidPage(
       
       # Show research list
       mainPanel(
-        dataTableOutput('Research_List')
+        tableOutput('Research_List')
       )
    )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  observeEvent(input$submit, {
+    source('../sql_conf.R')
+    Query_Insert_Research <- paste0("INSERT INTO `research` (`id`, `abbreviation`, `full_name`, `created_at`, `modified_at`, `description`, `contact_id`) VALUES (NULL, '",input$abbreviation, "', '",input$full_name, "', current_timestamp(), '0000-00-00 00:00:00.000000', '",input$description, "', '",input$contact_id, "');")
+    showNotification(dbSendQuery(DB_Connection, Query_Insert_Research))
+    RMySQL::dbDisconnect(DB_Connection)
+    shinyjs::js$refresh()
+  })
+    
   observeEvent(input$refresh, {
     shinyjs::js$refresh()
   })
-  output$Research_List <- renderDataTable(Research_List_Raw)
+  output$Research_List <- renderTable(Research_List_Raw)
 }
 
 # Run the application 
