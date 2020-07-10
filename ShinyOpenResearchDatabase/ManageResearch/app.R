@@ -8,6 +8,7 @@
 #
 
 library(shiny)
+library(shinyjs)
 
 #MySQL Connection
 source('../sql_conf.R')
@@ -20,7 +21,7 @@ Contact_List <- split(Contact_List_Raw$id, paste(Contact_List_Raw$first_name, Co
 #Get research list from database
 Query_Get_Research <- "SELECT * FROM research WHERE 1;"
 Research_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Research))
-
+RMySQL::dbDisconnect(DB_Connection)
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
@@ -39,7 +40,7 @@ ui <- fluidPage(
       actionButton("refresh", "Refresh", selected = NULL)
     ),
       
-      # Show a plot of the generated distribution
+      # Show research list
       mainPanel(
         tableOutput('Research_List')
       )
@@ -51,7 +52,7 @@ server <- function(input, output) {
   observeEvent(input$refresh, {
     shinyjs::js$refresh()
   })
-  output$Research_List <- renderDataTable(Research_List_Raw)
+  output$Research_List <- renderDataTable({Research_List_Raw})
 }
 
 # Run the application 
