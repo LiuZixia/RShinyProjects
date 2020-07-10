@@ -58,6 +58,10 @@ server <- function(input, output) {
   })
     
   observeEvent(input$refresh, {
+    source('../sql_conf.R')
+    Query_Get_Research <- "SELECT * FROM research WHERE 1;"
+    Research_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Research))
+    RMySQL::dbDisconnect(DB_Connection)
     shinyjs::js$refresh()
   })
   output$Research_List <- renderTable(Research_List_Raw)
