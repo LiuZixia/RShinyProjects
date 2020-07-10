@@ -13,25 +13,26 @@ library(shinyjs)
 #MySQL Connection
 source('../sql_conf.R')
 
-#Get contact list from database
-Query_Get_Contacts <- "SELECT id, first_name, last_name FROM contact WHERE 1;"
-Contact_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Contacts), n=-1)
-Contact_List <- split(Contact_List_Raw$id, paste(Contact_List_Raw$first_name, Contact_List_Raw$last_name))
+#Get research list from database
+Query_Get_Research <- "SELECT id, abbreviation, full_name FROM research WHERE 1;"
+Research_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Research), n=-1)
+Research_List <- split(Research_List_Raw$id, Research_List_Raw$abbreviation)
+research_id <- getQueryString()["ResearchID",]
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
    
   # Application title
-  titlePanel("Manage Research"),
+  titlePanel("Manage Group"),
   
   # Sidebar for inputs
   sidebarLayout(
     sidebarPanel(
-      textInput("abbreviation", "Abbreviation:", value = "Enter text..."),
-      textInput("full_name", "Full name:", value = "Enter text..."),
-      textAreaInput("description", "Description:", value = "Enter text..."),
-      selectInput("contact_id", "Contact", choices = Contact_List, selected = 1),
-      dateInput("created_at", "Created at: ", value = Sys.Date()),
+      selectInput("research_id", "Research", choices = Research_List, selected = research_id),
+      textInput("type", "Type:", value = "Enter text..."),
+      dateInput("start_date", "Start date:", value = Sys.Date()),
+      dateInput("end_date", "End date:", value = Sys.Date()),
+      selectInput("info_variables", "Research", choices = Research_List, selected = 1),
       actionButton("submit", "Submit", selected = NULL),
       actionButton("refresh", "Refresh", selected = NULL)
     ),
@@ -59,7 +60,7 @@ server <- function(input, output) {
   
   #Get research list from database
   source('../sql_conf.R')
-  Query_Get_Research <- "SELECT * FROM research WHERE 1;"
+  Query_Get_Group <- paste0("SELECT * FROM group WHERE research_id = ", input$research_id, ";")
   Research_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Research))
   RMySQL::dbDisconnect(DB_Connection)
   Research_List_Raw$id <- paste0('<a href="../ManageGroup/?ResearchID=', Research_List_Raw$id, '">', Research_List_Raw$id, "</a>")
