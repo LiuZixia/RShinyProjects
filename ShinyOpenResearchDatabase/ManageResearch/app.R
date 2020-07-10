@@ -42,7 +42,7 @@ ui <- fluidPage(
       
       # Show research list
       mainPanel(
-        tableOutput('Research_List')
+        dataTableOutput('Research_List')
       )
    )
 )
@@ -52,7 +52,7 @@ server <- function(input, output) {
   observeEvent(input$refresh, {
     shinyjs::js$refresh()
   })
-  output$Research_List <- renderDataTable({Research_List_Raw})
+  output$Research_List <- renderDataTable(Research_List_Raw)
 }
 
 # Run the application 
