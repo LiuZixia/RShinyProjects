@@ -31,14 +31,14 @@ ui <- fluidPage(
       textInput("type", "Type:", value = "Enter text..."),
       dateInput("start_date", "Start date:", value = Sys.Date()),
       dateInput("end_date", "End date:", value = Sys.Date()),
-      selectInput("info_variables", "Research", choices = Research_List, selected = 1),
+      selectInput("info_variables", "Variables", choices = Research_List, selected = 1),
       actionButton("submit", "Submit", selected = NULL),
       actionButton("refresh", "Refresh", selected = NULL)
     ),
       
       # Show research list
       mainPanel(
-        dataTableOutput('Research_List')
+        dataTableOutput('Group_List')
       )
    )
 )
@@ -63,13 +63,13 @@ server <- function(input, output, session) {
     shinyjs::js$refresh()
   })
   
-  #Get research list from database
+  #Get group list from database
   source('../sql_conf.R')
   Query_Get_Group <- paste0("SELECT * FROM group WHERE research_id = ", input$research_id, ";")
-  Research_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Research))
+  Group_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Group))
   RMySQL::dbDisconnect(DB_Connection)
-  Research_List_Raw$id <- paste0('<a href="../ManageGroup/?ResearchID=', Research_List_Raw$id, '">', Research_List_Raw$id, "</a>")
-  output$Research_List <- renderDataTable({Research_List_Raw}, escape = FALSE)
+  Group_List_Raw$id <- paste0('<a href="../ManageSample/?GroupID=', Group_List_Raw$id, '">', Group_List_Raw$id, "</a>")
+  output$Group_List <- renderDataTable({Group_List_Raw}, escape = FALSE)
 }
 
 # Run the application 
