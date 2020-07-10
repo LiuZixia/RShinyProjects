@@ -17,6 +17,7 @@ source('../sql_conf.R')
 Query_Get_Contacts <- "SELECT id, first_name, last_name FROM contact WHERE 1;"
 Contact_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Contacts), n=-1)
 Contact_List <- split(Contact_List_Raw$id, paste(Contact_List_Raw$first_name, Contact_List_Raw$last_name))
+RMySQL::dbDisconnect(DB_Connection)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(

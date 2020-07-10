@@ -65,12 +65,14 @@ server <- function(input, output, session) {
   })
   
   #Get group list from database
-  source('../sql_conf.R')
-  Query_Get_Group <- paste0("SELECT * FROM group WHERE `research_id` = ", input$research_id, ";")
-  Group_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Group))
-  RMySQL::dbDisconnect(DB_Connection)
-  Group_List_Raw$id <- paste0('<a href="../ManageSample/?GroupID=', Group_List_Raw$id, '">', Group_List_Raw$id, "</a>")
-  output$Group_List <- renderDataTable({Group_List_Raw}, escape = FALSE)
+    output$Group_List <- renderDataTable({
+      source('../sql_conf.R')
+      Query_Get_Group <- paste0("SELECT * FROM group WHERE `research_id` = ", input$research_id, ";")
+      Group_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Group))
+      RMySQL::dbDisconnect(DB_Connection)
+      Group_List_Raw$id <- paste0('<a href="../ManageSample/?GroupID=', Group_List_Raw$id, '">', Group_List_Raw$id, "</a>")
+      Group_List_Raw
+    }, escape = FALSE)
 }
 
 # Run the application 
