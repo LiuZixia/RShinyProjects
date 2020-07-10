@@ -17,7 +17,6 @@ source('../sql_conf.R')
 Query_Get_Research <- "SELECT id, abbreviation, full_name FROM research WHERE 1;"
 Research_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Research), n=-1)
 Research_List <- split(Research_List_Raw$id, Research_List_Raw$abbreviation)
-research_id <- getQueryString()["ResearchID",]
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -28,7 +27,7 @@ ui <- fluidPage(
   # Sidebar for inputs
   sidebarLayout(
     sidebarPanel(
-      selectInput("research_id", "Research", choices = Research_List, selected = research_id),
+      selectInput("research_id", "Research", choices = Research_List, selected = 1),
       textInput("type", "Type:", value = "Enter text..."),
       dateInput("start_date", "Start date:", value = Sys.Date()),
       dateInput("end_date", "End date:", value = Sys.Date()),
@@ -45,7 +44,13 @@ ui <- fluidPage(
 )
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
+server <- function(input, output, session) {
+  observe({
+    query <- parseQueryString(session$clientData$url_search)
+    if (!is.null(query[['ResearchID']])) {
+      updateTextInput(session, "research_id", value = query[['ResearchID']])
+    }
+  })
   observeEvent(input$submit, {
     source('../sql_conf.R')
     Query_Insert_Research <- paste0("INSERT INTO `research` (`id`, `abbreviation`, `full_name`, `created_at`, `modified_at`, `description`, `contact_id`) VALUES (NULL, '",input$abbreviation, "', '",input$full_name, "', current_timestamp(), '0000-00-00 00:00:00.000000', '",input$description, "', '",input$contact_id, "');")
