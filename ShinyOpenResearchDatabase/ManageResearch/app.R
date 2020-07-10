@@ -62,7 +62,7 @@ server <- function(input, output) {
   Query_Get_Research <- "SELECT * FROM research WHERE 1;"
   Research_List_Raw <- fetch(dbSendQuery(DB_Connection, Query_Get_Research))
   RMySQL::dbDisconnect(DB_Connection)
-  Research_Link <- paste0('<a href="../ManageGroup/?ResearchID="', Research_List_Raw$id, ">", Research_List_Raw$id, "</a>")
+  Research_Link <- paste0('<a href="../ManageGroup/?ResearchID=', Research_List_Raw$id, '">', Research_List_Raw$id, "</a>")
   Research_List <- cbind(Research_List_Raw, Research_Link)
   output$Research_List <- renderDataTable({Research_List}, escape = FALSE)
 }
