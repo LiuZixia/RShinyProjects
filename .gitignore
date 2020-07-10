@@ -41,3 +41,7 @@ vignettes/*.pdf
 
 # Test code
 test/
+.Rproj.user
+
+#Conf
+*conf*
